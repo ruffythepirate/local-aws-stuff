@@ -11,7 +11,9 @@ var AWS = require('aws-sdk');
 AWS.config.update({region: region});
 
 // Create the DynamoDB service object
-ddb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint('dynamoDbUrl'),apiVersion: '2012-10-08'});
+ddb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint(dynamoDbUrl),apiVersion: '2012-10-08'});
+
+    console.log('settings:', dynamoDbUrl, region, tableName);
 
 var params = {
   TableName: tableName,

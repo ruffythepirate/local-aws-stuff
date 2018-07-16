@@ -1,24 +1,39 @@
 
-const axios = require('axios')
-const url = 'http://checkip.amazonaws.com/';
-let response;
+const dynamoDbUrl = process.env.DYNAMODB_URL;
+const region = process.env.AWS_REGION;
 
+const tableName = 'myTable';
+
+
+// Load the AWS SDK for Node.js
+var AWS = require('aws-sdk');
+// Set the region 
+AWS.config.update({region: region});
+
+// Create the DynamoDB service object
+ddb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint('dynamoDbUrl'),apiVersion: '2012-10-08'});
+
+var params = {
+  TableName: tableName,
+  Item: {
+    ssoId: { N: '123456'},
+    requestId: {S: 'morning!'}
+  }
+};
 
 exports.lambda_handler = async (event, context, callback) => {
-    try {
-        const ret = await axios(url);
-        response = {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'hello world',
-                location: ret.data.trim()
-            })
-        }
-    }
-    catch (err) {
-        console.log(err);
-        callback(err, null);
-    }
+    // Load the AWS SDK for Node.js
+    console.log('starting work...')
 
-    callback(null, response)
+    // Call DynamoDB to add the item to the table
+    ddb.putItem(params, function(err, data) {
+      console.log('callback!');
+      if (err) {
+        console.err("Error", err);
+        callback(err)
+      } else {
+        console.log("Success", data);
+        callback(null, 'hello?')
+      }
+    });
 };

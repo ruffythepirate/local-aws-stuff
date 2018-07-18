@@ -5,37 +5,45 @@ const region = process.env.AWS_REGION;
 const tableName = 'myTable';
 
 
-// Load the AWS SDK for Node.js
+
+
+
+exports.lambda_handler = async (event, context, callback) => {
+  // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 // Set the region 
 AWS.config.update({region: region});
 
 // Create the DynamoDB service object
-ddb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint(dynamoDbUrl),apiVersion: '2012-10-08'});
+ddb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint(dynamoDbUrl), apiVersion: '2012-08-10'});
 
-    console.log('settings:', dynamoDbUrl, region, tableName);
+console.log('settings:', dynamoDbUrl, region, tableName);
+
+    // Load the AWS SDK for Node.js
+    console.log('starting work...')
 
 var params = {
   TableName: tableName,
   Item: {
-    ssoId: { N: '123456'},
+    id: { S: '123456'},
     requestId: {S: 'morning!'}
-  }
+  },
+  ConditionExpression: 'attribute_not_exists(id)'
 };
-
-exports.lambda_handler = async (event, context, callback) => {
-    // Load the AWS SDK for Node.js
-    console.log('starting work...')
-
     // Call DynamoDB to add the item to the table
     ddb.putItem(params, function(err, data) {
       console.log('callback!');
       if (err) {
-        console.err("Error", err);
+        console.log("Error", err);
         callback(err)
       } else {
         console.log("Success", data);
         callback(null, 'hello?')
       }
     });
+
+    console.log('put in work...')
+
+    callback(null, {});
+
 };
